@@ -208,7 +208,7 @@ document.addEventListener('DOMContentLoaded', async (event) => {
     } catch (error) {
       console.error('Fetch error:', error);
       botTextElement.textContent =
-        'There was a problem processing your request. Please try again later in a few seconds again.';
+        'There was a problem processing your request. Please try again in a few seconds.';
       loadingSvg.style.visibility = 'hidden';
       chatContainer.scrollTop = chatContainer.scrollHeight;
       sendButton.innerHTML = 'Send <img src="/images/buttons-send.svg" alt="" />';
