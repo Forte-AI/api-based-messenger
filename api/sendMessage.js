@@ -1,9 +1,9 @@
 import fetch from 'node-fetch';
 
-// Helper function to fetch with retry logic.
-async function fetchWithRetry(url, options, retries, delay) {
+// Helper function that retries a fetch call up to a maximum number of times.
+async function fetchWithRetry(url, options, maxRetries, delayMs) {
   let attempt = 0;
-  while (attempt <= retries) {
+  while (attempt <= maxRetries) {
     try {
       const response = await fetch(url, options);
       if (response.ok) {
@@ -13,11 +13,11 @@ async function fetchWithRetry(url, options, retries, delay) {
       }
     } catch (error) {
       attempt++;
-      if (attempt > retries) {
+      if (attempt > maxRetries) {
         throw error;
       }
-      // Wait for a specified delay before retrying.
-      await new Promise(resolve => setTimeout(resolve, delay));
+      // Wait for the specified delay before retrying.
+      await new Promise(resolve => setTimeout(resolve, delayMs));
     }
   }
 }
@@ -40,63 +40,65 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Server misconfiguration: missing API token' });
   }
 
+  // Set common headers for both POST and GET requests.
+  // Note: We override the User-Agent header so that the API doesn't see a mobile user agent.
+  const commonHeaders = {
+    'Authorization': `Token ${token}`,
+    'Content-Type': 'application/json',
+    'User-Agent': 'AskHandleClient/1.0'
+  };
+
   try {
-    // POST: Retry up to 3 times with a 1-second delay if the call fails.
+    // POST request: Retry up to 3 times with a 1-second delay between attempts.
     const postResponse = await fetchWithRetry(
       'https://dashboard.askhandle.com/api/v1/messages/',
       {
         method: 'POST',
-        headers: {
-          'Authorization': `Token ${token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: commonHeaders,
         body: JSON.stringify({
           body: message,
           nickname: nickname,
           email: email,
           phone_number: phone_number,
-          room: { uuid: room },
+          room: { uuid: room }
         }),
       },
-      3, // maximum number of retries for POST
-      1000 // delay in milliseconds between POST retries
+      3,    // maxRetries for POST
+      1000  // delay in milliseconds between POST retries
     );
 
-    // Parse the initial response.
     let data = await postResponse.json();
 
     // Use the returned message UUID to poll for the AI answer.
     const messageUuid = data.uuid;
-    const maxRetries = 10; // total polling iterations
-    let retries = 0;
+    const maxPolls = 10;  // Total number of polling iterations
+    let polls = 0;
 
-    // Poll the GET endpoint until support_answer is non-empty.
-    while ((!data.support_answer || data.support_answer.trim() === "") && retries < maxRetries) {
+    // Poll the GET endpoint until support_answer is non-empty or polling attempts are exhausted.
+    while ((!data.support_answer || data.support_answer.trim() === "") && polls < maxPolls) {
       // Wait 1.5 seconds before each poll.
       await new Promise(resolve => setTimeout(resolve, 1500));
       try {
-        // GET: Use fetchWithRetry to retry GET calls up to 2 times with a 1-second delay.
+        // GET request: Retry each poll up to 2 times with a 1-second delay.
         const pollResponse = await fetchWithRetry(
           `https://dashboard.askhandle.com/api/v1/messages/${messageUuid}/`,
           {
             method: 'GET',
-            headers: {
-              'Authorization': `Token ${token}`,
-            },
+            headers: commonHeaders,
             cache: 'no-store'
           },
-          2, // maximum retries for each GET poll
-          1000 // delay between GET retries
+          2,    // maxRetries for each GET poll
+          1000  // delay between GET retries in milliseconds
         );
         data = await pollResponse.json();
       } catch (error) {
-        console.error(`Polling GET failed on attempt ${retries}:`, error);
+        console.error(`Polling GET failed on attempt ${polls + 1}:`, error);
       }
-      retries++;
+      polls++;
     }
 
     if (!data.support_answer || data.support_answer.trim() === "") {
-      // Fallback if no answer is available after polling.
+      // If no answer is available after polling, return a fallback message.
       return res.status(200).json({ support_answer: 'No response received.' });
     }
 
