@@ -7,11 +7,11 @@ document.addEventListener('DOMContentLoaded', function () {
   const checkboxTerms = document.getElementById('agree-terms');
 
   // Flags to control whether fields are required
-  let isNameRequired = false;
-  let isPhoneRequired = false;
-  let isEmailRequired = false;
-  let isPrivacyRequired = false;
-  let isTermsRequired = false;
+  let isNameRequired = true;
+  let isPhoneRequired = true;
+  let isEmailRequired = true;
+  let isPrivacyRequired = true;
+  let isTermsRequired = true;
 
   // Add real-time validation listeners
   nameInput.addEventListener('input', () =>
@@ -30,12 +30,46 @@ document.addEventListener('DOMContentLoaded', function () {
     validateCheckbox('agree-terms', 'Agree to the Terms of Use.')
   );
 
+  // Function to clear previous error messages
+  function clearErrors() {
+    const errorContainer = document.getElementById('error-container');
+    if (errorContainer) {
+      errorContainer.textContent = '';
+    }
+  }
+
+  // Function to display error messages
+  function displayError(message) {
+    let errorContainer = document.getElementById('error-container');
+    if (!errorContainer) {
+      errorContainer = document.createElement('div');
+      errorContainer.id = 'error-container';
+      errorContainer.style.color = 'red';
+      errorContainer.style.marginBottom = '10px';
+      form.insertBefore(errorContainer, form.firstChild);
+    }
+    errorContainer.textContent = message;
+  }
+
+  // Helper to dynamically set whether fields are required
+  function setRequiredFields(nameRequired, emailRequired, phoneRequired, privacyRequired, termsRequired) {
+    isNameRequired = nameRequired;
+    isEmailRequired = emailRequired;
+    isPhoneRequired = phoneRequired;
+    isPrivacyRequired = privacyRequired;
+    isTermsRequired = termsRequired;
+  }
+
+  // Example: Set name, privacy, and terms as required. Email and phone not required.
+  setRequiredFields(true, false, false, true, true);
+
   form.addEventListener('submit', function (event) {
     event.preventDefault();
+    clearErrors();
 
     let isValid = true;
 
-    // Validate the fields as before...
+    // Validate each field based on your current requirements.
     if (isNameRequired && !validateInput('name', 'Please enter your name.')) {
       isValid = false;
     }
@@ -65,10 +99,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (isValid) {
-      // Save that the form has been submitted so that the chat page can load
-      localStorage.setItem('formSubmitted', 'true');
-
-      // Call the API route to create a new AskHandle chat room
+      // Call the API route to create a new AskHandle chat room.
+      // Note that we do not set "formSubmitted" until a valid room is returned.
       fetch('/api/createRoom', {
         method: 'POST',
       })
@@ -78,45 +110,29 @@ document.addEventListener('DOMContentLoaded', function () {
             // Save the room UUID, greeting message, and the user's details for later use in chat.
             localStorage.setItem('askhandleRoomUUID', data.room.uuid);
             localStorage.setItem('nickname', nameInput.value);
-            localStorage.setItem('email', emailInput.value);  // <-- Save email
-            localStorage.setItem('phone', phoneInput.value);    // <-- Save phone number
+            localStorage.setItem('email', emailInput.value);
+            localStorage.setItem('phone', phoneInput.value);
             if (data.room.greeting_message) {
               localStorage.setItem('greeting_message', data.room.greeting_message);
             }
+            // Mark form submission as successful.
+            localStorage.setItem('formSubmitted', 'true');
+            // Redirect to the chat page once room creation is complete.
+            document.body.classList.add('fade-out-transition', 'fade-out');
+            setTimeout(() => {
+              window.location.href = '/chat.html';
+            }, 500);
           } else {
             console.error('Failed to create chat room:', data.error);
+            displayError('Failed to create chat room. Please try again.');
           }
-          // Redirect to the chat page once room creation is complete
-          document.body.classList.add('fade-out-transition', 'fade-out');
-          setTimeout(() => {
-            window.location.href = '/chat.html';
-          }, 500);
         })
         .catch((error) => {
           console.error('Error creating chat room:', error);
+          displayError('Error creating chat room. Please check your connection and try again.');
         });
-
     }
   });
-
-  // Function to send the email asynchronously using navigator.sendBeacon
-  function sendEmailAsync(formData) {
-    const url = '/api/sendEmail';
-    const data = JSON.stringify(formData);
-    const blob = new Blob([data], { type: 'application/json' });
-    
-    // sendBeacon sends data asynchronously without blocking the page
-    if (!navigator.sendBeacon(url, blob)) {
-      // If sendBeacon fails, fall back to fetch as a backup
-      fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: data,
-      }).catch(error => console.error('Fallback email sending error:', error));
-    }
-  }
 
   // Validation functions
   function validateInput(id, errorMessage, validationFunction = (value) => !!value.trim()) {
@@ -158,29 +174,5 @@ document.addEventListener('DOMContentLoaded', function () {
       checkboxLabel.classList.remove('invalid-checkbox');
       return true;
     }
-  }
-
-  // Helper to dynamically set whether fields are required
-  function setRequiredFields(nameRequired, emailRequired, phoneRequired, privacyRequired, termsRequired) {
-    isNameRequired = nameRequired;
-    isEmailRequired = emailRequired;
-    isPhoneRequired = phoneRequired;
-    isPrivacyRequired = privacyRequired;
-    isTermsRequired = termsRequired;
-  }
-
-  // Example: Set name, privacy, and terms as required. Email and phone not required
-  setRequiredFields(true, false, false, true, true);
-
-  function clearErrors() {
-    document
-      .querySelectorAll('.error-message')
-      .forEach((error) => (error.textContent = ''));
-    document
-      .querySelectorAll('.invalid-input')
-      .forEach((input) => input.classList.remove('invalid-input'));
-    document
-      .querySelectorAll('.invalid-checkbox')
-      .forEach((label) => label.classList.remove('invalid-checkbox'));
   }
 });
