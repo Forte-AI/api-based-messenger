@@ -60,8 +60,8 @@ document.addEventListener('DOMContentLoaded', function () {
     isTermsRequired = termsRequired;
   }
 
-  // Example: Set name, privacy, and terms as required. Email and phone not required.
-  setRequiredFields(true, false, false, true, true);
+  // Set all fields as required: name, email, phone, privacy, and terms.
+  setRequiredFields(true, true, true, true, true);
 
   form.addEventListener('submit', function (event) {
     event.preventDefault();
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let isValid = true;
 
-    // Validate each field based on your current requirements.
+    // Validate each field based on the required flags.
     if (isNameRequired && !validateInput('name', 'Please enter your name.')) {
       isValid = false;
     }
