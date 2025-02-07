@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat with AI | Askhandle</title>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.png">
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Inter:100,200,300,regular,500,600,700,800,900"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header></header>
+    <main class="chat">
+      <div class="chat__modal-container">
+        <div class="chat__modal-overlay"></div>
+        <div class="chat__modal-exit">
+          <div class="chat__modal-wrapper">
+            <div class="chat__modal-title">Do you want to leave the chat?</div>
+            <div class="chat__modal-text">
+              Are you sure you want to close this chat? This action cannot be
+              undone.
+            </div>
+            <div class="chat__modal-buttons">
+              <button class="chat__modal-btn">Cancel</button>
+              <button class="chat__modal-btn chat__modal-btn-close">
+                Leave
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="container">
+        <div class="chat__title-active">
+          <div class="chat__logo">
+            <img src="/images/logo-blue.svg" alt="" />
+          </div>
+          <button class="chat__close-btn">
+            <img src="/images/x.svg" alt="close button" />
+          </button>
+        </div>
+        <div class="chat__title-wrapper">
+          <div class="chat__logo">
+            <img src="/images/logo-blue.svg" alt="" />
+          </div>
+          <p class="chat__subtitle">
+            Hello, this is Askhandle AI. How can I help you today?
+          </p>
+        </div>
+        <div id="chat-container" class="chat__container">
+          <!-- Chat body -->
+          <div id="chat-body" class="chat__body"></div>
+        </div>
+        <div class="chat__user-wrapper">
+          <div class="chat__questions"></div>
+          <div id="chat-input" class="chat__input-block">
+            <textarea
+              class="chat__user-input"
+              id="message-input"
+              rows="1"
+              placeholder="Please type your question here."
+            ></textarea>
+            <button id="send-button" type="button" class="chat__input-btn">
+              Send <img src="/images/buttons-send.svg" alt="" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer></footer>
+    <!-- Include Marked.js -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Include DOMPurify -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
+    <!-- Your chat.js script -->
+    <script src="chat.js"></script>
+  </body>
+</html>

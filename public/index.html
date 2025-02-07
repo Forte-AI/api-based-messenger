@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Chat with our AI to get quick answers or have fun in the AskHandle AI playground. Experience AI-powered conversations for entertainment and assistance." />
+    <meta name="keywords" content="AI playground, chat with AI, AskHandle" />
+    <meta name="robots" content="index, follow" />
+    
+    <title>AI Playground | AskHandle</title>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.png">
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Inter:100,200,300,regular,500,600,700,800,900"
+      rel="stylesheet" />
+  </head>
+  <body>
+    <main class="chat-start chat-start__bg-1">
+      <section class="chat-start__container">
+        <div class="chat__wrapper">
+          <div class="chat-start__logo">
+            <img src="/images/logo-white.svg" alt="AskHandle Logo" />
+          </div>
+          <div class="chat-start__title">
+            <h2>Unlock Knowledge & Fun</h2>
+            <p>Chat on the AskHandle Playground!</p>
+          </div>
+          <form id="chat-form" class="chat__form" aria-label="AI Chat Form">
+            <div class="chat__form-group">
+              <input
+                class="chat-start__input"
+                type="text"
+                id="name"
+                placeholder="What’s your name?" />
+              <div class="error-message" id="name-error"></div>
+            </div>
+            <div class="chat__form-group">
+              <input
+                class="chat-start__input"
+                type="email"
+                id="email"
+                placeholder="Email" />
+              <div class="error-message" id="email-error"></div>
+            </div>
+            <div class="chat__form-group">
+              <input
+                class="chat-start__input"
+                type="tel"
+                id="phone"
+                placeholder="Phone" />
+              <div class="error-message" id="phone-error"></div>
+            </div>
+            <button class="chat-start__input" type="submit">
+              Chat with AI
+            </button>
+          </form>
+          <section class="chat__privacy" aria-label="Privacy and Terms">
+            <div>
+              <label class="custom-checkbox">
+                <input id='agree-privacy' type="checkbox" unchecked />
+                <span class="checkmark"></span>
+                I agree with AskHandle's
+                <a href="https://www.askhandle.com/privacy-policy" target="_blank" rel="noopener">privacy policy</a>
+              </label>
+              <div class="error-message" id="agree-privacy-error"></div>
+            </div>
+            <div>
+              <label class="custom-checkbox">
+                <input id='agree-terms' type="checkbox" unchecked />
+                <span class="checkmark"></span>
+                I agree with AskHandle's
+                <a href="https://www.askhandle.com/terms" target="_blank" rel="noopener">terms of use</a>
+              </label>
+              <div class="error-message" id="agree-terms-error"></div>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+   
+    <script src="index.js"></script>
+  </body>
+</html>

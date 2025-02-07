@@ -1,0 +1,18 @@
+{
+  "name": "api-based-messenger",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "scripts": {
+    "build": "echo 'No build steps necessary'",
+    "vercel-build": "npm run build"
+  },
+  "author": "AskHandle",
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "node-fetch": "^3.3.2"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}
