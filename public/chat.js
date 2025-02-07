@@ -97,6 +97,44 @@ function hideFeedbackButtons() {
   }
 }
 
+/**
+ * Recursively polls AskHandle for the support_answer.
+ *
+ * @param {string} messageUuid - The UUID of the sent message.
+ * @param {string} token - The AskHandle API token.
+ * @param {number} retries - The current retry count.
+ * @param {number} maxRetries - The maximum number of retries.
+ * @returns {Promise<string|null>} - The support_answer if available, or null.
+ */
+async function pollForAnswer(messageUuid, token, retries, maxRetries) {
+  if (retries >= maxRetries) return null;
+  
+  try {
+    const pollResponse = await fetch(
+      `https://dashboard.askhandle.com/api/v1/messages/${messageUuid}/`,
+      {
+        method: 'GET',
+        headers: {
+          'Authorization': `Token ${token}`,
+        },
+        cache: 'no-store'
+      }
+    );
+    if (pollResponse.ok) {
+      const data = await pollResponse.json();
+      if (data.support_answer && data.support_answer.trim() !== "") {
+        return data.support_answer;
+      }
+    }
+  } catch (error) {
+    console.error('Polling error:', error);
+  }
+  
+  // Wait 1 second, then retry
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  return pollForAnswer(messageUuid, token, retries + 1, maxRetries);
+}
+
 // Sends the message to the server and displays the AI response
 async function sendMessage(message, existingBotMessageElement = null) {
   shouldContinueTyping = true;
@@ -133,11 +171,18 @@ async function sendMessage(message, existingBotMessageElement = null) {
     }
 
     const data = await response.json();
-
     loadingSvg.style.visibility = 'hidden';
 
-    // Use support_answer from the backend; fall back if not available.
-    const replyText = data.support_answer || 'No response received.';
+    let answer = data.support_answer;
+    // If the answer is not ready, use recursive polling (up to 10 retries)
+    if (!answer || answer.trim() === "") {
+      // You can supply your token here if available. For security, the token is usually only on the backend.
+      // If necessary, you might consider passing a shorter-lived token to the client.
+      const token = process.env.ASKHANDLE_API_TOKEN || '';
+      answer = await pollForAnswer(data.uuid, token, 0, 10);
+    }
+
+    const replyText = answer || 'No response received.';
     const parsedHtml = DOMPurify.sanitize(marked.parse(replyText));
 
     simulateTypingEffect(botTextElement, parsedHtml, () => {

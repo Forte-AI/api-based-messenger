@@ -639,17 +639,15 @@ select {
   justify-content: center;
   align-items: center;
   z-index: 100;
-
-  visibility: hidden;
-  opacity: 0;
-  transition: visibility 0s linear 0.5s, opacity 0.5s linear;
+  display: none;
 }
 
 .chat__modal-container.show {
-  visibility: visible;
+  display: flex;
   opacity: 1;
   transition: opacity 0.5s linear;
 }
+
 
 .chat__modal-overlay {
   position: absolute;
