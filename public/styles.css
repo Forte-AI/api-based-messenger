@@ -27,6 +27,7 @@ dd {
   margin: 0;
 }
 
+
 /* Set core body defaults */
 body {
   min-height: 100svh;
@@ -563,6 +564,14 @@ select {
   color: #ffffff;
 }
 
+.chat-start__title h2 {
+  font-size: 2em;
+}
+
+.chat-start__title p {
+  font-size: 1em;
+}
+
 .chat__form {
   display: flex;
   flex-direction: column;
@@ -581,7 +590,7 @@ select {
   border-radius: 8px;
   padding: 10px 14px;
   border: 1px solid #d0d5dd;
-  background: #fff;
+  background: #ffffff;
   box-shadow: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
   max-width: 300px;
   width: 100%;
@@ -594,6 +603,11 @@ select {
   border-color: #667eea; /* Change to a soft blue */
   box-shadow: 0px 2px 4px rgba(16, 24, 40, 0.1); /* Slightly larger shadow */
 }
+
+.chat-start__input-button:hover {
+  background-color: #222ec9;
+}
+
 
 /* Active/Focus State */
 .chat-start__input:focus, .chat-start__input:active {
@@ -786,7 +800,7 @@ select {
 }
 
 .chat__privacy a {
-  color: #999999;
+  color: #cbd5e1;
   text-decoration: underline;
   margin-left: 4px;
 }
