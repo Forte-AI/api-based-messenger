@@ -28,10 +28,11 @@ export default async function handler(req, res) {
   }
 
   // Destructure required fields from the request body.
+  // Note: email and phone_number are now optional.
   const { message, room, nickname, email, phone_number } = req.body;
-  if (!message || !room || !nickname || !email || !phone_number) {
+  if (!message || !room || !nickname) {
     return res.status(400).json({ 
-      error: 'Missing required fields: message, room, nickname, email, or phone_number' 
+      error: 'Missing required fields: message, room, or nickname' 
     });
   }
 
@@ -41,12 +42,27 @@ export default async function handler(req, res) {
   }
 
   // Set common headers for both POST and GET requests.
-  // Note: We override the User-Agent header so that the API doesn't see a mobile user agent.
+  // Override the User-Agent header so that the API doesn't see a mobile user agent.
   const commonHeaders = {
     'Authorization': `Token ${token}`,
     'Content-Type': 'application/json',
     'User-Agent': 'AskHandleClient/1.0'
   };
+
+  // Build the payload. Only include email and phone_number if they have non-empty values.
+  const payload = {
+    body: message,
+    nickname: nickname,
+    room: { uuid: room }
+  };
+  
+  if (email && email.trim() !== '') {
+    payload.email = email;
+  }
+  
+  if (phone_number && phone_number.trim() !== '') {
+    payload.phone_number = phone_number;
+  }
 
   try {
     // POST request: Retry up to 3 times with a 1-second delay between attempts.
@@ -55,13 +71,7 @@ export default async function handler(req, res) {
       {
         method: 'POST',
         headers: commonHeaders,
-        body: JSON.stringify({
-          body: message,
-          nickname: nickname,
-          email: email,
-          phone_number: phone_number,
-          room: { uuid: room }
-        }),
+        body: JSON.stringify(payload),
       },
       3,    // maxRetries for POST
       1000  // delay in milliseconds between POST retries
