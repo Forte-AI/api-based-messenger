@@ -17,12 +17,20 @@ document.addEventListener('DOMContentLoaded', function () {
   nameInput.addEventListener('input', () =>
     validateInput('name', 'Please enter your name.')
   );
-  phoneInput.addEventListener('input', () =>
-    validateInput('phone', 'Please enter a valid phone number.', validatePhone)
-  );
-  emailInput.addEventListener('input', () =>
-    validateInput('email', 'Please enter a valid email address.', validateEmail)
-  );
+  
+  // Only add listeners if the elements exist
+  if (phoneInput) {
+    phoneInput.addEventListener('input', () =>
+      validateInput('phone', 'Please enter a valid phone number.', validatePhone)
+    );
+  }
+  
+  if (emailInput) {
+    emailInput.addEventListener('input', () =>
+      validateInput('email', 'Please enter a valid email address.', validateEmail)
+    );
+  }
+  
   checkboxPrivacy.addEventListener('change', () =>
     validateCheckbox('agree-privacy', 'Agree to the Privacy Policy.')
   );
@@ -73,18 +81,17 @@ document.addEventListener('DOMContentLoaded', function () {
     if (isNameRequired && !validateInput('name', 'Please enter your name.')) {
       isValid = false;
     }
-    if (
-      isPhoneRequired &&
-      !validateInput('phone', 'Please enter a valid phone number.', validatePhone)
-    ) {
+    
+    // Only validate phone if the input exists and is required
+    if (isPhoneRequired && phoneInput && !validateInput('phone', 'Please enter a valid phone number.', validatePhone)) {
       isValid = false;
     }
-    if (
-      isEmailRequired &&
-      !validateInput('email', 'Please enter a valid email address.', validateEmail)
-    ) {
+    
+    // Only validate email if the input exists and is required
+    if (isEmailRequired && emailInput && !validateInput('email', 'Please enter a valid email address.', validateEmail)) {
       isValid = false;
     }
+    
     if (
       isPrivacyRequired &&
       !validateCheckbox('agree-privacy', 'You must agree to the Privacy Policy.')
@@ -100,7 +107,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (isValid) {
       // Call the API route to create a new AskHandle chat room.
-      // Note that we do not set "formSubmitted" until a valid room is returned.
       fetch('/api/createRoom', {
         method: 'POST',
       })
@@ -110,8 +116,13 @@ document.addEventListener('DOMContentLoaded', function () {
             // Save the room UUID, greeting message, and the user's details for later use in chat.
             localStorage.setItem('askhandleRoomUUID', data.room.uuid);
             localStorage.setItem('nickname', nameInput.value);
-            localStorage.setItem('email', emailInput.value);
-            localStorage.setItem('phone', phoneInput.value);
+            // Only store email and phone if they exist
+            if (emailInput) {
+              localStorage.setItem('email', emailInput.value);
+            }
+            if (phoneInput) {
+              localStorage.setItem('phone', phoneInput.value);
+            }
             if (data.room.greeting_message) {
               localStorage.setItem('greeting_message', data.room.greeting_message);
             }
