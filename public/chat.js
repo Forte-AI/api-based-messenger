@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', async (event) => {
   const roomUUID = localStorage.getItem('askhandleRoomUUID');
   const formSubmitted = localStorage.getItem('formSubmitted');
   if (!formSubmitted || !roomUUID) {
-    // If required data isn’t present, redirect to a 404 or error page.
+    // If required data isn't present, redirect to a 404 or error page.
     window.location.href = '/404.html';
     return;
   }
@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', async (event) => {
           room,
           nickname,
           email,
-          phone_number: phone  // Send as phone_number per AskHandle’s expected structure.
+          phone_number: phone  // Send as phone_number per AskHandle's expected structure.
         }),
       });
 
@@ -226,9 +226,61 @@ document.addEventListener('DOMContentLoaded', async (event) => {
     shouldContinueTyping = true;
   }
 
+  function showCopyNotification() {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = 'copy-notification';
+    notification.innerHTML = `
+      <img src="/images/clipboard.svg" alt="Clipboard" style="width: 16px; height: 16px; margin-right: 8px; filter: brightness(0) invert(1);" />
+      <span>Copied to clipboard!</span>
+    `;
+    document.body.appendChild(notification);
+
+    // Add styles for the notification
+    const style = document.createElement('style');
+    style.textContent = `
+      .copy-notification {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #005bea;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        opacity: 0;
+        transition: all 0.3s ease-in-out;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        box-shadow: 0px 4px 12px rgba(0, 91, 234, 0.2);
+      }
+      .copy-notification.show {
+        opacity: 1;
+        transform: translate(-50%, -10px);
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Show notification
+    setTimeout(() => {
+      notification.classList.add('show');
+    }, 100);
+
+    // Remove notification after 2 seconds
+    setTimeout(() => {
+      notification.classList.remove('show');
+      setTimeout(() => {
+        notification.remove();
+      }, 300);
+    }, 2000);
+  }
+
   function copyText(botMessageElement) {
     const text = botMessageElement.querySelector('.chat__bot-text').textContent;
     navigator.clipboard.writeText(text);
+    showCopyNotification();
   }
 
   function deleteMessage(botMessageElement) {
